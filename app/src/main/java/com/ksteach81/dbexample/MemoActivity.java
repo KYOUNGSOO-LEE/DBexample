@@ -3,6 +3,7 @@ package com.ksteach81.dbexample;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.ContentValues;
+import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.widget.EditText;
@@ -12,6 +13,7 @@ import android.widget.Toast;
 public class MemoActivity extends AppCompatActivity {
     private EditText mTitleEditText;
     private EditText mContentsEditText;
+    private long mMemoId = -1 ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -19,6 +21,16 @@ public class MemoActivity extends AppCompatActivity {
         setContentView(R.layout.activity_memo);
         mTitleEditText = findViewById(R.id.title_edit);
         mContentsEditText = findViewById(R.id.contents_edit);
+
+        Intent intent = getIntent();
+        if (intent != null) {
+            mMemoId = intent.getLongExtra("id", -1);
+            String title = intent.getStringExtra("title");
+            String contents = intent.getStringExtra("contents");
+
+            mTitleEditText.setText(title);
+            mContentsEditText.setText(contents);
+        }
     }
 
     @Override
@@ -31,16 +43,28 @@ public class MemoActivity extends AppCompatActivity {
         contentValues.put(MemoContract.MemoEntry.COLUMN_NAME_CONTENTS, contents);
 
         SQLiteDatabase db = MemoDbHelper.getInstance(this).getWritableDatabase();
-        long newRowID = db.insert(MemoContract.MemoEntry.TABLE_NAME,
-                null,
-                contentValues);
+        if (mMemoId == - 1) {
+            long newRowID = db.insert(MemoContract.MemoEntry.TABLE_NAME,
+                    null,
+                    contentValues);
 
-        if (newRowID == -1) {
-            Toast.makeText(this, "저장에 문제가 발생했습니다.", Toast.LENGTH_SHORT).show();
+            if (newRowID == -1) {
+                Toast.makeText(this, "저장에 문제가 발생했습니다.", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "메모가 저장되었습니다.", Toast.LENGTH_SHORT).show();
+                setResult(RESULT_OK);
+            }
         } else {
-            Toast.makeText(this, "메모가 저장되었습니다.", Toast.LENGTH_SHORT).show();
-            setResult(RESULT_OK);
+            int count = db.update(MemoContract.MemoEntry.TABLE_NAME, contentValues,
+                    MemoContract.MemoEntry._ID + " = " + mMemoId, null);
+            if (count == 0) {
+                Toast.makeText(this, "수정에 문제가 발생하였습니다.", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "메모가 수정되었습니다", Toast.LENGTH_SHORT).show();
+                setResult(RESULT_OK);
+            }
         }
+
 
         super.onBackPressed();
     }

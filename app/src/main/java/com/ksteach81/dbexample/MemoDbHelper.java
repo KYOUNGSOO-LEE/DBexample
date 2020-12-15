@@ -17,6 +17,7 @@ public class MemoDbHelper extends SQLiteOpenHelper {
                     MemoContract.MemoEntry._ID,
                     MemoContract.MemoEntry.COLUMN_NAME_TITLE,
                     MemoContract.MemoEntry.COLUMN_NAME_CONTENTS);
+
     private static final String SQl_DELETE_ENTRIES =
             "DROP TABLE IF EXISTS " + MemoContract.MemoEntry.TABLE_NAME;
 
@@ -27,13 +28,13 @@ public class MemoDbHelper extends SQLiteOpenHelper {
         return sInstance;
     }
 
-    public MemoDbHelper(@Nullable Context context) {
+    private MemoDbHelper(@Nullable Context context) {
         super(context, DB_NAME, null, DB_VERSION);
     }
 
+    // 최초의 db 생성
     @Override
     public void onCreate(SQLiteDatabase db) {
-        // 테이블 생성
         db.execSQL(SQL_CREATE_ENTRIES);
     }
 

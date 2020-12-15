@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.CursorAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -40,19 +41,37 @@ public class MainActivity extends AppCompatActivity {
         Cursor cursor = getMemoCursor();
         mAdapter = new MemoAdapter(this, cursor);
         listView.setAdapter(mAdapter);
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(MainActivity.this, MainActivity.class);
+
+                Cursor cursor = (Cursor) mAdapter.getItem(position);
+
+                String title = cursor.getString(cursor.getColumnIndexOrThrow(MemoContract.MemoEntry.COLUMN_NAME_TITLE));
+                String contents = cursor.getString(cursor.getColumnIndexOrThrow(MemoContract.MemoEntry.COLUMN_NAME_CONTENTS));
+
+                intent.putExtra("id", id);
+                intent.putExtra("title", title);
+                intent.putExtra("contents", contents);
+
+                startActivityForResult(intent, REQUEST_CODE_INSERT);
+            }
+        });
     }
 
     private Cursor getMemoCursor() {
         MemoDbHelper dbHelper = MemoDbHelper.getInstance(this);
         return dbHelper.getReadableDatabase()
                 .query(MemoContract.MemoEntry.TABLE_NAME,
-                        null,null,null,null,null,null);
+                        null,null,null,null,null,MemoContract.MemoEntry._ID + " DESC");
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CODE_INSERT && requestCode == RESULT_OK) {
+        if (requestCode == REQUEST_CODE_INSERT && resultCode == RESULT_OK) {
             mAdapter.swapCursor(getMemoCursor());
         }
     }
