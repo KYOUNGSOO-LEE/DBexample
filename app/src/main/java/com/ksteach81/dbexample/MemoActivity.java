@@ -44,11 +44,11 @@ public class MemoActivity extends AppCompatActivity {
 
         SQLiteDatabase db = MemoDbHelper.getInstance(this).getWritableDatabase();
         if (mMemoId == - 1) {
-            long newRowID = db.insert(MemoContract.MemoEntry.TABLE_NAME,
+            long newRowId = db.insert(MemoContract.MemoEntry.TABLE_NAME,
                     null,
                     contentValues);
 
-            if (newRowID == -1) {
+            if (newRowId == -1) {
                 Toast.makeText(this, "저장에 문제가 발생했습니다.", Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(this, "메모가 저장되었습니다.", Toast.LENGTH_SHORT).show();
@@ -64,7 +64,6 @@ public class MemoActivity extends AppCompatActivity {
                 setResult(RESULT_OK);
             }
         }
-
 
         super.onBackPressed();
     }
